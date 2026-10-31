@@ -1,8 +1,9 @@
-// HUD frontend checker. Usage: node check.js [dir]   (dir holds hud_min.html + hud_min.js; default ".")
+// HUD frontend checker. Usage: node check.js [dir] [--part2]   (dir holds hud_min.html + hud_min.js; default ".")
 // Serves the page, feeds it test states, prints a PASS/FAIL table, writes screenshots to ./shots, exits 1 on any FAIL.
 const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), http = require('http');
-const dir = path.resolve(process.argv[2] || '.');
+const args = process.argv.slice(2), part2 = args.includes('--part2');
+const dir = path.resolve(args.find(a => !a.startsWith('--')) || '.');
 const shots = path.resolve('shots'); fs.mkdirSync(shots, { recursive: true });
 
 let state = {}, up = true;
@@ -88,9 +89,66 @@ const rows = [];
   await run('390px', P('• 아주 긴 한국어 문장입니다 '.repeat(8) + ' {g}verylongenglishtermwithoutspaces_{/g}'.repeat(3), { question: '긴 질문 '.repeat(20) }),
     d => [d.sw <= d.cw, 'scrollWidth=' + d.sw + ' clientWidth=' + d.cw], { width: 390, height: 700 });
 
+
+  const rows2 = [];
+  async function p2(n, st, vp, setup, fn) {
+    state = st; up = true;
+    const p = await b.newPage({ viewport: vp });
+    let res;
+    try {
+      if (setup) await setup(p);
+      await p.goto(base); await p.waitForTimeout(900);
+      res = await fn(p);
+    } catch (e) { res = [false, String(e).slice(0, 110)]; }
+    rows2.push([n, res[0] ? 'PASS' : 'FAIL', String(res[1] || '')]);
+    await p.screenshot({ path: path.join(shots, 'part2-' + n.replace(/\W+/g, '_') + '.png') }).catch(() => {});
+    await p.close();
+  }
+  if (part2) {
+    const metrics = p => p.evaluate(() => {
+      const cs = (s, k) => getComputedStyle(document.querySelector(s))[k];
+      return { fs: cs('.answer', 'fontSize'), pt: cs('.card', 'paddingTop'), pl: cs('.card', 'paddingLeft') };
+    });
+    // P2-1 responsive: <=600px smaller answer text and tighter card padding; wider screens unchanged
+    await p2('P2-1 responsive', P('• hi'), { width: 390, height: 600 }, null, async p => {
+      const m = await metrics(p); const n = await b.newPage({ viewport: { width: 700, height: 600 } });
+      await n.goto(base); await n.waitForTimeout(700); const w = await metrics(n); await n.close();
+      const ok = m.fs === '18px' && m.pt === '8px' && m.pl === '10px' && w.fs === '24px' && w.pt === '12px' && w.pl === '16px';
+      return [ok, 'narrow=' + JSON.stringify(m) + ' wide=' + JSON.stringify(w)];
+    });
+    // P2-2 THINKING pill blinks (keyframes "blink", 1.2s, infinite); other states do not; reduced motion turns it off
+    const anim = p => p.evaluate(() => {
+      const s = getComputedStyle(document.getElementById('status'));
+      const kf = [...document.styleSheets].some(ss => { try { return [...ss.cssRules].some(r => r.type === 7 && r.name === 'blink'); } catch (e) { return false; } });
+      return { name: s.animationName, dur: s.animationDuration, iter: s.animationIterationCount, kf };
+    });
+    await p2('P2-2 blink', P('', { status: 'THINKING' }), { width: 700, height: 400 }, null, async p => {
+      const a = await anim(p);
+      const done = await b.newPage({ viewport: { width: 700, height: 400 } }); state = P('x', { status: 'DONE' });
+      await done.goto(base); await done.waitForTimeout(700); const d = await anim(done); await done.close();
+      state = P('', { status: 'THINKING' });
+      const rm = await b.newPage({ viewport: { width: 700, height: 400 } }); await rm.emulateMedia({ reducedMotion: 'reduce' });
+      await rm.goto(base); await rm.waitForTimeout(700); const r = await anim(rm); await rm.close();
+      const ok = a.name === 'blink' && a.dur === '1.2s' && a.iter === 'infinite' && a.kf && d.name === 'none' && r.name === 'none';
+      return [ok, 'thinking=' + JSON.stringify(a) + ' done=' + d.name + ' reduced=' + r.name];
+    });
+    // P2-3 code block: 3px accent line on the left (#6cb6ff), long lines wrap instead of scrolling
+    await p2('P2-3 code block', P('```\n' + 'x'.repeat(300) + '\n```'), { width: 390, height: 600 }, null, async p => {
+      const m = await p.evaluate(() => {
+        const e = document.querySelector('pre.code'), s = getComputedStyle(e);
+        return { bw: s.borderLeftWidth, bc: s.borderLeftColor, over: e.scrollWidth - e.clientWidth, page: document.documentElement.scrollWidth - document.documentElement.clientWidth };
+      });
+      return [m.bw === '3px' && m.bc === 'rgb(108, 182, 255)' && m.over <= 1 && m.page <= 0, JSON.stringify(m)];
+    });
+  }
+
   console.log('| case | result | detail |\n|---|---|---|');
   for (const r of rows) console.log('| ' + r.join(' | ') + ' |');
-  const fails = rows.filter(r => r[1] === 'FAIL').length;
+  if (part2) {
+    console.log('\n### Part 2 (CSS)\n\n| case | result | detail |\n|---|---|---|');
+    for (const r of rows2) console.log('| ' + r.join(' | ') + ' |');
+  }
+  const fails = rows.concat(rows2).filter(r => r[1] === 'FAIL').length;
   console.log('\n' + (fails ? fails + ' FAILED' : 'ALL PASSED'));
   await b.close(); srv.close(); process.exit(fails ? 1 : 0);
 })();

@@ -8,6 +8,9 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash   # bash with pipefail, so a failing check.js fails the job even through `| tee`
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -17,9 +20,16 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - name: Run checks
         run: node check.js . | tee result.md
-      - name: Show result in job summary
+      - name: Part 2 (CSS) - reported, not required
+        continue-on-error: true
+        run: node check.js . --part2 | tee result2.md
+      - name: Show results in job summary
         if: always()
-        run: cat result.md >> "$GITHUB_STEP_SUMMARY"
+        run: |
+          echo "## Base" >> "$GITHUB_STEP_SUMMARY"
+          cat result.md >> "$GITHUB_STEP_SUMMARY"
+          echo "## With Part 2" >> "$GITHUB_STEP_SUMMARY"
+          cat result2.md >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

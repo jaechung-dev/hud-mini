@@ -179,3 +179,20 @@ You still must test. Use whatever you have, in this order: another headless brow
 Skip A, deliver as in B.
 
 In every scenario the §6 report comes first.
+
+## 8. Part 2 — CSS challenge (only after §6 passes)
+
+Same page, same two files. **Only edit the `<style>` block of `hud_min.html`. Do not change `hud_min.js`** and do not
+remove or loosen any existing rule. Add the CSS for the three items below. Write it yourself; no code is given.
+
+| # | Requirement | How it is measured |
+|---|---|---|
+| P2-1 | **Responsive.** At a viewport width of 600 px or less: `.answer` font-size becomes `18px` and `.card` padding becomes `8px 10px`. Wider than 600 px nothing changes (`24px`, `12px 16px`). | computed `font-size`, `padding-top`, `padding-left` at 390 px and at 700 px |
+| P2-2 | **Blinking status.** Only the THINKING pill blinks: define `@keyframes blink` (opacity goes down to about `.35` and back), run it as `blink 1.2s infinite`. DONE and ERROR do not animate. With `prefers-reduced-motion: reduce` the THINKING pill must not animate either. | computed `animation-name` / `-duration` / `-iteration-count`, the keyframes rule exists, and the same pill under reduced-motion |
+| P2-3 | **Code block.** `pre.code` gets a `3px solid #6cb6ff` left border (only the left side changes). A 300-character line without spaces must wrap inside the box: no horizontal scroll on the box or the page at 390 px. | computed `border-left-width` and colour, `scrollWidth` vs `clientWidth` |
+
+Hints: a later rule with equal specificity wins; `@media` blocks go after the rules they override; `border-left` is a
+shorthand, so it must come after `border`.
+
+Check: `node check.js . --part2` prints a second table (`P2-1` … `P2-3`). Paste its real output under your §6 table.
+Part 2 passes only if all three rows are PASS **and** the nine base rows still PASS. Deliver as in §7.
