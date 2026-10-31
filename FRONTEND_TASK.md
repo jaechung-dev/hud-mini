@@ -9,7 +9,7 @@ Work in this order. **Do not skip steps. Do not write DONE until step 4 is fully
 2. Adjust the CSS only if a test shows a problem
 3. Test it yourself (§5)
 4. Report (§6)
-5. Push (§7) — only after step 4 is fully satisfied
+5. Deliver (§7) — only after step 4 is fully satisfied
 
 ---
 
