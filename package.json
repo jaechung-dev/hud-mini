@@ -1,0 +1,8 @@
+{
+  "name": "hud-mini",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tiny read-only HUD display page and its checker",
+  "scripts": { "check": "node check.js ." },
+  "devDependencies": { "playwright": "1.47.0" }
+}

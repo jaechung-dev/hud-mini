@@ -74,6 +74,7 @@ body { background: #071225; color: #e7eefb; padding: 18px;
 .pill.status.THINKING { color: #ffd166; }
 .pill.status.DONE { color: #8bd3a8; }
 .pill.status.ERROR { color: #ff7b72; }
+.question, .answer { overflow-wrap: anywhere; }
 .question { font-size: 18px; line-height: 1.3; font-weight: 600; color: #f4f8ff; white-space: pre-line; }
 .question .opt { color: #cbd5e1; font-weight: 500; }
 .question .ok { color: #4ade80; font-weight: 700; }
@@ -120,6 +121,11 @@ Plain JS in one IIFE. Required behaviour:
 8. No localStorage, no cookies, no other network calls.
 
 ## 5. Test it yourself (mandatory)
+
+**Automatic checker.** The repository contains `check.js` (Playwright) that runs all nine rows below plus the 390 px
+check on your `hud_min.html` + `hud_min.js` and prints the PASS/FAIL table itself. If you can run commands:
+`npm install && npx playwright install chromium && node check.js .` — paste its real output as your §6 table.
+Never write the table by hand: pushed branches are checked again by GitHub Actions, and a made-up PASS is caught.
 
 Make a test folder with `hud_min.html`, `hud_min.js` and a file named exactly `state` (no extension) that holds the
 JSON. Serve it with `python3 -m http.server 8000` and open `http://localhost:8000/hud_min.html`. The page reads the
