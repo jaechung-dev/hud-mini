@@ -151,14 +151,25 @@ Only when **every** row of §5 passes, reply with:
 If anything fails: fix it, rerun all tests. If you cannot make a test pass, say **FAILED** with the test number and what you see.
 Never write DONE without the table and screenshots.
 
-## 7. Push to GitHub (after §6 passes)
+## 7. Delivery (after §6 passes) — pick the first scenario that works
 
+Work out which scenario applies **before** you start building, and say which one in your first message.
+
+**Scenario A — you can reach GitHub and are allowed to push**
 Repository: `https://github.com/jaechung-dev/hud-mini`
-
 1. Create a new branch from `main`, named `frontend-<your-model-name>` (lowercase, no spaces).
-2. Add **only** `hud_min.html` and `hud_min.js` at the repo root. Do not add screenshots, test files or the `state` file.
-3. Commit with the message `Add HUD frontend` and push the branch.
-4. **Never push to `main`.** Do not open a pull request, do not merge, do not change any other file.
+2. Add **only** `hud_min.html` and `hud_min.js` at the repo root (no screenshots, no test files, no `state`).
+3. Commit with the message `Add HUD frontend`, push the branch.
+4. **Never push to `main`.** No pull request, no merge, no other files.
 5. Reply with the branch name and the commit hash.
 
-If the push is rejected (no access), do not try other ways. Report the error text and stop.
+**Scenario B — no GitHub access, or the push is rejected**
+Do not try other ways to push and do not ask for credentials. Print the **complete** contents of `hud_min.html` and then `hud_min.js`, each in its own fenced code block, with the file name on the line before it. No "…" or "rest unchanged": the user copies them as they are.
+
+**Scenario C — you cannot run a browser (no Playwright/Chromium)**
+You still must test. Use whatever you have, in this order: another headless browser; `node` with `jsdom`; or, last resort, a hand trace of each §5 row against your code. Say clearly which method you used. Mark every row you could only trace by hand as **UNVERIFIED** in the §6 table, and do not write DONE. Then deliver as in A or B.
+
+**Scenario D — you were pasted this file and have no repository**
+Skip A, deliver as in B.
+
+In every scenario the §6 report comes first.
