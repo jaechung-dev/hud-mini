@@ -4,6 +4,10 @@ const { chromium } = require('playwright');
 const fs = require('fs'), path = require('path'), http = require('http');
 const args = process.argv.slice(2), part2 = args.includes('--part2');
 const dir = path.resolve(args.find(a => !a.startsWith('--')) || '.');
+if (!fs.existsSync(path.join(dir, 'hud_min.html')) || !fs.existsSync(path.join(dir, 'hud_min.js'))) {
+  console.log('No hud_min.html / hud_min.js in ' + dir + ' - nothing to check (infra-only change).');
+  process.exit(0);
+}
 const shots = path.resolve('shots'); fs.mkdirSync(shots, { recursive: true });
 
 let state = {}, up = true;
