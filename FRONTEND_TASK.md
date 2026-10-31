@@ -9,6 +9,7 @@ Work in this order. **Do not skip steps. Do not write DONE until step 4 is fully
 2. Adjust the CSS only if a test shows a problem
 3. Test it yourself (§5)
 4. Report (§6)
+5. Push (§7) — only after step 4 is fully satisfied
 
 ---
 
@@ -149,3 +150,15 @@ Only when **every** row of §5 passes, reply with:
 
 If anything fails: fix it, rerun all tests. If you cannot make a test pass, say **FAILED** with the test number and what you see.
 Never write DONE without the table and screenshots.
+
+## 7. Push to GitHub (after §6 passes)
+
+Repository: `https://github.com/jaechung-dev/hud-mini`
+
+1. Create a new branch from `main`, named `frontend-<your-model-name>` (lowercase, no spaces).
+2. Add **only** `hud_min.html` and `hud_min.js` at the repo root. Do not add screenshots, test files or the `state` file.
+3. Commit with the message `Add HUD frontend` and push the branch.
+4. **Never push to `main`.** Do not open a pull request, do not merge, do not change any other file.
+5. Reply with the branch name and the commit hash.
+
+If the push is rejected (no access), do not try other ways. Report the error text and stop.
